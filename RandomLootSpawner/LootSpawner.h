@@ -25,11 +25,14 @@ public:
     LootSpawner();
     
     void AddLootList(LootList list);
+    void AddLootList(LootRarity rarity, int minRoll, int maxRoll, int currentRoll);
 
     // Select item Category and spawn random item from list
     void LootSpawn();
 
     // Get random item from list 
     int GetRandomLoot(vector <Loot>& array);
+
+    
 };
 

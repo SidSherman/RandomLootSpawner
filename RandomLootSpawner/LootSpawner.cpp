@@ -5,9 +5,12 @@ LootSpawner::LootSpawner()
 
         // Add some loot for tests
         // 
+        // SHOULD BE REMOVED AFTER USER INPUT OR DATA SERIALIZATiON INPLEMENTATION
+        //
+        
         // Add usual loot
-        lootUsualList.push_back(Loot(LootRarity::Usual, 10, false));
-        lootUsualList.push_back(Loot(LootRarity::Usual, 11, true));
+        lootUsualList.push_back(Loot(LootRarity::Usual, 1, false));
+        /*lootUsualList.push_back(Loot(LootRarity::Usual, 11, true));
         lootUsualList.push_back(Loot(LootRarity::Usual, 12, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 13, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 14, true));
@@ -15,36 +18,62 @@ LootSpawner::LootSpawner()
         lootUsualList.push_back(Loot(LootRarity::Usual, 16, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 17, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 18, false));
-        lootUsualList.push_back(Loot(LootRarity::Usual, 19, false));
+        lootUsualList.push_back(Loot(LootRarity::Usual, 19, false));*/
 
 
         // Add rare loot
-        lootRareList.push_back(Loot(LootRarity::Rare, 21, false));
-        lootRareList.push_back(Loot(LootRarity::Rare, 22, false));
+
+        lootRareList.push_back(Loot(LootRarity::Rare, 2, false));
+       /* lootRareList.push_back(Loot(LootRarity::Rare, 22, false));
         lootRareList.push_back(Loot(LootRarity::Rare, 23, false));
         lootRareList.push_back(Loot(LootRarity::Rare, 24, false));
-        lootRareList.push_back(Loot(LootRarity::Rare, 25, false));
+        lootRareList.push_back(Loot(LootRarity::Rare, 25, false));*/
 
         // Add legendary loot
-        lootLegendaryList.push_back(Loot(LootRarity::Legendary, 31, false));
-        lootLegendaryList.push_back(Loot(LootRarity::Legendary, 32, false));
-        lootLegendaryList.push_back(Loot(LootRarity::Legendary, 33, false));
+        
+       // lootLegendaryList.push_back(Loot(LootRarity::Legendary, 31, false));
+       // lootLegendaryList.push_back(Loot(LootRarity::Legendary, 32, false));
+       // lootLegendaryList.push_back(Loot(LootRarity::Legendary, 33, false));
 
         // Summon different loot lists 
 
         //LootList(vector<lootList>, LootRarity, minRoll, maxRoll, currentRoll);
 
-        AddLootList(LootList(lootUsualList, LootRarity::Usual, 0, 0, 0));
-        AddLootList(LootList(lootRareList, LootRarity::Rare, 5, 9, 0));
-        AddLootList(LootList(lootLegendaryList, LootRarity::Legendary, 11, 16, 0));
+       // AddLootList(LootList(lootUsualList, LootRarity::Usual, 0, 0, 0));
+       // AddLootList(LootList(lootRareList, LootRarity::Rare, 5, 9, 0));
+       // AddLootList(LootList(lootLegendaryList, LootRarity::Legendary, 11, 16, 0));
 
         // sort list by rarity
+
         LootLists.sort(CompLootByRarity);
     }
 
 void LootSpawner::AddLootList(LootList list)
 {
     LootLists.push_back(list);
+    LootLists.sort(CompLootByRarity);
+}
+
+void LootSpawner::AddLootList(LootRarity rarity, int minRoll,int maxRoll,int currentRoll)
+{
+    switch (rarity)
+    {
+    case LootRarity::Usual:
+        LootLists.push_back(LootList(lootUsualList, LootRarity::Usual, minRoll, maxRoll, currentRoll));
+        break;
+    case LootRarity::Rare:
+        LootLists.push_back(LootList(lootRareList, LootRarity::Rare, minRoll, maxRoll, currentRoll));
+        break;
+    case LootRarity::Legendary:
+        LootLists.push_back(LootList(lootLegendaryList, LootRarity::Legendary, minRoll, maxRoll, currentRoll));
+        break;
+    case LootRarity::ENUM_COUNT:
+        break;
+    default:
+        break;
+    }
+    LootLists.sort(CompLootByRarity);
+   
 }
 
 int LootSpawner::GetRandomLoot(vector <Loot>& array)
