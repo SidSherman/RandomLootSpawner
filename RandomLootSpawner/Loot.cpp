@@ -9,6 +9,10 @@ Loot::Loot(LootRarity rarity, int value, bool bCanRepeat)
     this->bCanRepeat = bCanRepeat;
 }
 
+Loot::Loot()
+{
+}
+
 
 bool Loot::GetCanRepeat()
 {

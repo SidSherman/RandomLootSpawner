@@ -1,6 +1,6 @@
 #pragma once
 
-enum class LootRarity { Usual = 0, Rare = 1, Legendary = 2, ENUM_COUNT = 3 };
+enum class LootRarity { Usual = 0, Rare = 1, ENUM_COUNT = 2 };
 
 class Loot
 {

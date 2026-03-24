@@ -1,14 +1,24 @@
 #include "LootList.h"
 
-LootList::LootList(vector<Loot> lootList, LootRarity rarity, int minRoll, int maxRoll, int currentRoll)
+LootList::LootList(vector<Loot> lootList, LootRarity rarity, int frequency, int minRoll, int maxRoll, int currentRoll)
 {
     this->rarity = rarity;
     this->minRoll = minRoll;
+    this->frequency = frequency;
     this->maxRoll = maxRoll;
     this->currentRoll = currentRoll;
     this->lootList = lootList;
 }
 
+LootList::LootList()
+{
+}
+
+
+int LootList::GetFrequency()
+{
+    return frequency;
+}
 
 int LootList::GetCurrentRoll()
 {
@@ -27,7 +37,7 @@ void LootList::AddCurrentRoll()
 {
     this->currentRoll++;
 }
-void LootList::LootList::ClearAddCurrentRoll()
+void LootList::ClearAddCurrentRoll()
 {
     this->currentRoll = 0;
 }

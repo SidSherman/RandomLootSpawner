@@ -10,7 +10,7 @@ LootSpawner::LootSpawner()
         
         // Add usual loot
         lootUsualList.push_back(Loot(LootRarity::Usual, 1, false));
-        /*lootUsualList.push_back(Loot(LootRarity::Usual, 11, true));
+        lootUsualList.push_back(Loot(LootRarity::Usual, 11, true));
         lootUsualList.push_back(Loot(LootRarity::Usual, 12, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 13, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 14, true));
@@ -18,22 +18,17 @@ LootSpawner::LootSpawner()
         lootUsualList.push_back(Loot(LootRarity::Usual, 16, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 17, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 18, false));
-        lootUsualList.push_back(Loot(LootRarity::Usual, 19, false));*/
+        lootUsualList.push_back(Loot(LootRarity::Usual, 19, false));
 
 
         // Add rare loot
 
         lootRareList.push_back(Loot(LootRarity::Rare, 2, false));
-       /* lootRareList.push_back(Loot(LootRarity::Rare, 22, false));
+        lootRareList.push_back(Loot(LootRarity::Rare, 22, false));
         lootRareList.push_back(Loot(LootRarity::Rare, 23, false));
         lootRareList.push_back(Loot(LootRarity::Rare, 24, false));
-        lootRareList.push_back(Loot(LootRarity::Rare, 25, false));*/
+        lootRareList.push_back(Loot(LootRarity::Rare, 25, false));
 
-        // Add legendary loot
-        
-       // lootLegendaryList.push_back(Loot(LootRarity::Legendary, 31, false));
-       // lootLegendaryList.push_back(Loot(LootRarity::Legendary, 32, false));
-       // lootLegendaryList.push_back(Loot(LootRarity::Legendary, 33, false));
 
         // Summon different loot lists 
 
@@ -41,7 +36,6 @@ LootSpawner::LootSpawner()
 
        // AddLootList(LootList(lootUsualList, LootRarity::Usual, 0, 0, 0));
        // AddLootList(LootList(lootRareList, LootRarity::Rare, 5, 9, 0));
-       // AddLootList(LootList(lootLegendaryList, LootRarity::Legendary, 11, 16, 0));
 
         // sort list by rarity
 
@@ -54,18 +48,15 @@ void LootSpawner::AddLootList(LootList list)
     LootLists.sort(CompLootByRarity);
 }
 
-void LootSpawner::AddLootList(LootRarity rarity, int minRoll,int maxRoll,int currentRoll)
+void LootSpawner::AddLootList(LootRarity rarity, int frequency, int minRoll,int maxRoll,int currentRoll)
 {
     switch (rarity)
     {
     case LootRarity::Usual:
-        LootLists.push_back(LootList(lootUsualList, LootRarity::Usual, minRoll, maxRoll, currentRoll));
+        LootLists.push_back(LootList(lootUsualList, LootRarity::Usual, frequency, minRoll, maxRoll, currentRoll));
         break;
     case LootRarity::Rare:
-        LootLists.push_back(LootList(lootRareList, LootRarity::Rare, minRoll, maxRoll, currentRoll));
-        break;
-    case LootRarity::Legendary:
-        LootLists.push_back(LootList(lootLegendaryList, LootRarity::Legendary, minRoll, maxRoll, currentRoll));
+        LootLists.push_back(LootList(lootRareList, LootRarity::Rare, frequency, minRoll, maxRoll, currentRoll));
         break;
     case LootRarity::ENUM_COUNT:
         break;
@@ -76,10 +67,14 @@ void LootSpawner::AddLootList(LootRarity rarity, int minRoll,int maxRoll,int cur
    
 }
 
-int LootSpawner::GetRandomLoot(vector <Loot>& array)
+Loot LootSpawner::GetRandomLoot(vector <Loot>& array)
 {
     if (array.size() == 0)
-        return -1;
+    {
+        cout << "Loot list is empty" << "\n";
+        return *(new Loot());
+    }
+
 
     int lootIndex = 0;
 
@@ -92,11 +87,11 @@ int LootSpawner::GetRandomLoot(vector <Loot>& array)
             lootIndex = randValue;
 
             // return random item if there is no prev item
-            if (previousLootValue == NULL)
+            if (previousLootValue == -1)
             {
                 previousLootValue = array[lootIndex].GetValue();
 
-                return array[lootIndex].GetValue();
+                return array[lootIndex];
             }
 
             // check the item was not returned for prev drop
@@ -105,7 +100,7 @@ int LootSpawner::GetRandomLoot(vector <Loot>& array)
                 if (array[lootIndex].GetCanRepeat())
                 {
                     previousLootValue = array[lootIndex].GetValue();
-                    return array[lootIndex].GetValue();
+                    return array[lootIndex];
                 }
 
                 iterations++;
@@ -114,22 +109,22 @@ int LootSpawner::GetRandomLoot(vector <Loot>& array)
                     cout << "iterations limit";
                     previousLootValue = array[lootIndex].GetValue();
 
-                    return array[lootIndex].GetValue();
+                    return array[lootIndex];
                 }
             }
             else
             {
 
                 previousLootValue = array[lootIndex].GetValue();
-                return array[lootIndex].GetValue();
+                return array[lootIndex];
             }
         }
     }
 
-    return array[0].GetValue();
+    return array[0];
 }
 
-void LootSpawner::LootSpawn()
+Loot LootSpawner::LootSpawn()
 {
 
     for (LootList& lootRarityCategory : LootLists)
@@ -143,28 +138,32 @@ void LootSpawner::LootSpawn()
             {
                 vector<Loot> CurrentList = lootRarityCategory.GetLootList();
 
-                cout << "value " << GetRandomLoot(CurrentList) << "\n";
+                Loot value = GetRandomLoot(CurrentList);
 
                 lootRarityCategory.ClearAddCurrentRoll();
 
-                break;
+                return value;
             }
 
-            // spawn item with 50% percent chance
+            // spawn item with target chance
+            srand(time(nullptr));
 
-            int randValue = rand() % 2;
-            if (randValue == 1)
+            std::mt19937 rng(std::random_device{}());
+
+            float randValue = std::uniform_real_distribution<double>{ 0.0, 1.0 }(rng);
+
+            if (randValue < lootRarityCategory.GetFrequency() / 100.0)
             {
                 vector<Loot> CurrentList = lootRarityCategory.GetLootList();
 
-                cout << "value " << GetRandomLoot(CurrentList) << "\n";
+                Loot value = GetRandomLoot(CurrentList);
 
                 lootRarityCategory.ClearAddCurrentRoll();
 
-                break;
+                return value;
 
             }
-            else if (randValue == 0)
+            else
             {
                 lootRarityCategory.AddCurrentRoll();
                 continue;
@@ -173,5 +172,8 @@ void LootSpawner::LootSpawn()
 
         lootRarityCategory.AddCurrentRoll();
     }
+
+    cout << "Loot lists are empty\n";
+    return *new Loot();
 }
 

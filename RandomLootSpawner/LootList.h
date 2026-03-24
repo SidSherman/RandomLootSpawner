@@ -10,7 +10,7 @@ class LootList
 private:
     LootRarity rarity;
 
-
+    int frequency = 0;
     int minRoll = 0;
     int maxRoll = 0;
 
@@ -20,9 +20,11 @@ private:
 
 public:
 
-    LootList(vector<Loot> lootList, LootRarity rarity, int minRoll, int maxRoll, int currentRoll = 0);
+    LootList(vector<Loot> lootList, LootRarity rarity, int frequency , int minRoll, int maxRoll, int currentRoll = 0);
 
     LootList();
+
+    int GetFrequency();
 
     // return current roll after prev spawn
     int GetCurrentRoll();

@@ -1,9 +1,10 @@
 ﻿// RandomLootTestTask.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
 
-#include <iostream>
+
 #include "LootSpawner.h"
 #include <math.h>
+#include <cmath>
 
 using namespace std;
 
@@ -20,25 +21,72 @@ int main()
 
     int maxRoll = 0;
     int minRoll = 0;
-    int MeanRoll = 0;
     float frequency = 0;
-    cout << "Enter max roll count to drop rare item \n";
+
+    cout << "Enter averange chance from 0 to 100 to drop rare item \n";
+    cin >> frequency;
+
+    if (frequency>100)
+    {
+        frequency = 100;
+    }
+    if (frequency < 0)
+    {
+        frequency = 0;
+    }
+
+    cout << "Enter upper chance variance to drop rare item \n";
     cin >> maxRoll;
-    cout << "Enter min roll count to drop rare item \n";
+
+    maxRoll = frequency - maxRoll;
+
+
+
+    if (maxRoll > frequency)
+    {
+        maxRoll = frequency;
+        maxRoll = round(100 / frequency);
+    }
+    else if (maxRoll <= 0)
+    {
+        maxRoll = 0;
+    }
+    else
+    {
+        maxRoll = round(100 / maxRoll);
+    }
+
+    cout << "Enter below chance variance to drop rare item \n";
     cin >> minRoll;
 
-    if (minRoll <= 0)
-        frequency = 100;
+    minRoll = frequency + minRoll;
+
+    if (minRoll > 100)
+    {
+        minRoll = 100;
+        minRoll = round(100 / frequency);
+    }
+    if (minRoll < frequency)
+    {
+        minRoll = frequency;
+        minRoll = round(100 / frequency);
+    }
     else
-        frequency = round((100.f / (float) minRoll + 100.f / (float) maxRoll) / 2.f);
+    {
+        minRoll = round(100 / minRoll);
+    }
 
-    cout << "item drop around " << frequency << " times in 100 rolls" << endl;
 
-    lootDropperComponent->AddLootList(LootRarity::Usual, 0, 0, 0);
-    lootDropperComponent->AddLootList(LootRarity::Rare, minRoll, maxRoll, 0);
+
+    cout << "item will be dropped around " << frequency << " times in 100 rolls" << endl;
+
+    lootDropperComponent->AddLootList(LootRarity::Usual, 100, 0, 0, 0);
+    lootDropperComponent->AddLootList(LootRarity::Rare, frequency, minRoll, maxRoll, 0);
 
     while (true)
     {
+        int success = 0;
+
         cout << "Enter rolls count , Enter Zero to exit ";
         cin >> value;
 
@@ -50,10 +98,18 @@ int main()
        for (int i = 0; i < value; i++)
         {
             cout << "Current roll " << count << endl << endl;
-            lootDropperComponent->LootSpawn();
+            
+            Loot temp = lootDropperComponent->LootSpawn();
+            cout << "value " << temp.GetValue() << endl;
+
+            if (temp.GetRarity() == LootRarity::Rare)
+                success++;
+
             count++;
            
         }
+
+       cout << "Rare items drop " << success << endl;
        
     }
 

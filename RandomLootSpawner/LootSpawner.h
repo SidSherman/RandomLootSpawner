@@ -5,7 +5,7 @@
 #include "Loot.h"
 #include "LootList.h"
 #include <iostream>
-
+#include <random>
 using namespace std;
 
 class LootSpawner
@@ -16,22 +16,21 @@ private:
 
     vector<Loot> lootUsualList;
     vector<Loot> lootRareList;
-    vector<Loot> lootLegendaryList;
+
     list <LootList> LootLists;
-    int previousLootValue = NULL;
-    int previousLootIndex = 0;
+    int previousLootValue = -1;
 
 public:
     LootSpawner();
     
     void AddLootList(LootList list);
-    void AddLootList(LootRarity rarity, int minRoll, int maxRoll, int currentRoll);
+    void AddLootList(LootRarity rarity, int frequency, int minRoll, int maxRoll, int currentRoll);
 
     // Select item Category and spawn random item from list
-    void LootSpawn();
+    Loot LootSpawn();
 
     // Get random item from list 
-    int GetRandomLoot(vector <Loot>& array);
+    Loot GetRandomLoot(vector <Loot>& array);
 
     
 };
