@@ -3,8 +3,6 @@
 
 
 #include "LootSpawner.h"
-#include <math.h>
-#include <cmath>
 
 using namespace std;
 
@@ -15,12 +13,9 @@ int main()
    
     cout << endl;
 
-    srand(time(NULL));
     int value = 1;
     LootSpawner* lootDropperComponent = new LootSpawner();
 
-    int maxRoll = 0;
-    int minRoll = 0;
     float frequency = 0;
 
     cout << "Enter averange chance from 0 to 100 to drop rare item \n";
@@ -35,57 +30,15 @@ int main()
         frequency = 0;
     }
 
-    cout << "Enter upper chance variance to drop rare item \n";
-    cin >> maxRoll;
 
-    maxRoll = frequency - maxRoll;
-
-
-
-    if (maxRoll > frequency)
-    {
-        maxRoll = frequency;
-        maxRoll = round(100 / frequency);
-    }
-    else if (maxRoll <= 0)
-    {
-        maxRoll = 0;
-    }
-    else
-    {
-        maxRoll = round(100 / maxRoll);
-    }
-
-    cout << "Enter below chance variance to drop rare item \n";
-    cin >> minRoll;
-
-    minRoll = frequency + minRoll;
-
-    if (minRoll > 100)
-    {
-        minRoll = 100;
-        minRoll = round(100 / frequency);
-    }
-    if (minRoll < frequency)
-    {
-        minRoll = frequency;
-        minRoll = round(100 / frequency);
-    }
-    else
-    {
-        minRoll = round(100 / minRoll);
-    }
-
-
-
-    cout << "item will be dropped around " << frequency << " times in 100 rolls" << endl;
-
-    lootDropperComponent->AddLootList(LootRarity::Usual, 100, 0, 0, 0);
-    lootDropperComponent->AddLootList(LootRarity::Rare, frequency, minRoll, maxRoll, 0);
+    lootDropperComponent->AddLootList(LootRarity::Usual, 100);
+    lootDropperComponent->AddLootList(LootRarity::Rare, frequency);
 
     while (true)
     {
         int success = 0;
+
+        lootDropperComponent->ResetAllEntropy();
 
         cout << "Enter rolls count , Enter Zero to exit ";
         cin >> value;

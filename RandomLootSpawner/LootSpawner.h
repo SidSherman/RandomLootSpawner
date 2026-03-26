@@ -14,6 +14,8 @@ class LootSpawner
 
 private:
 
+    std::mt19937 rng;
+
     vector<Loot> lootUsualList;
     vector<Loot> lootRareList;
 
@@ -24,7 +26,9 @@ public:
     LootSpawner();
     
     void AddLootList(LootList list);
-    void AddLootList(LootRarity rarity, int frequency, int minRoll, int maxRoll, int currentRoll);
+    void AddLootList(LootRarity rarity, int frequency);
+
+    void ResetAllEntropy();
 
     // Select item Category and spawn random item from list
     Loot LootSpawn();

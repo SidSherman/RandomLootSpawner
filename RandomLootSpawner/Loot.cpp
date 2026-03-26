@@ -11,6 +11,10 @@ Loot::Loot(LootRarity rarity, int value, bool bCanRepeat)
 
 Loot::Loot()
 {
+    this->rarity = LootRarity::Usual;
+    this->value = -1;
+
+    this->bCanRepeat = true;
 }
 
 

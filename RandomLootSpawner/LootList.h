@@ -20,7 +20,7 @@ private:
 
 public:
 
-    LootList(vector<Loot> lootList, LootRarity rarity, int frequency , int minRoll, int maxRoll, int currentRoll = 0);
+    LootList(vector<Loot> lootList, LootRarity rarity, int frequency, int currentRoll = 0);
 
     LootList();
 
@@ -43,6 +43,7 @@ public:
 
     vector<Loot> GetLootList();
    
+    void SetCurrentRoll(int value);
 
 };
 

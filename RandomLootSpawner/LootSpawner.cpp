@@ -1,6 +1,6 @@
 #include "LootSpawner.h"
 
-LootSpawner::LootSpawner()
+LootSpawner::LootSpawner() : rng(std::random_device{}())
     {
 
         // Add some loot for tests
@@ -9,8 +9,8 @@ LootSpawner::LootSpawner()
         //
         
         // Add usual loot
-        lootUsualList.push_back(Loot(LootRarity::Usual, 1, false));
-        lootUsualList.push_back(Loot(LootRarity::Usual, 11, true));
+        lootUsualList.push_back(Loot(LootRarity::Usual, 1, true));
+        /*lootUsualList.push_back(Loot(LootRarity::Usual, 11, true));
         lootUsualList.push_back(Loot(LootRarity::Usual, 12, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 13, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 14, true));
@@ -18,16 +18,16 @@ LootSpawner::LootSpawner()
         lootUsualList.push_back(Loot(LootRarity::Usual, 16, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 17, false));
         lootUsualList.push_back(Loot(LootRarity::Usual, 18, false));
-        lootUsualList.push_back(Loot(LootRarity::Usual, 19, false));
+        lootUsualList.push_back(Loot(LootRarity::Usual, 19, false));*/
 
 
         // Add rare loot
 
-        lootRareList.push_back(Loot(LootRarity::Rare, 2, false));
-        lootRareList.push_back(Loot(LootRarity::Rare, 22, false));
+        lootRareList.push_back(Loot(LootRarity::Rare, 2, true));
+       /*lootRareList.push_back(Loot(LootRarity::Rare, 22, false));
         lootRareList.push_back(Loot(LootRarity::Rare, 23, false));
         lootRareList.push_back(Loot(LootRarity::Rare, 24, false));
-        lootRareList.push_back(Loot(LootRarity::Rare, 25, false));
+        lootRareList.push_back(Loot(LootRarity::Rare, 25, false));*/
 
 
         // Summon different loot lists 
@@ -48,15 +48,18 @@ void LootSpawner::AddLootList(LootList list)
     LootLists.sort(CompLootByRarity);
 }
 
-void LootSpawner::AddLootList(LootRarity rarity, int frequency, int minRoll,int maxRoll,int currentRoll)
+void LootSpawner::AddLootList(LootRarity rarity, int frequency)
 {
+    std::uniform_int_distribution<int> dist(0, 99);
+    int initialEntropy = dist(rng);
+
     switch (rarity)
     {
     case LootRarity::Usual:
-        LootLists.push_back(LootList(lootUsualList, LootRarity::Usual, frequency, minRoll, maxRoll, currentRoll));
+        LootLists.push_back(LootList(lootUsualList, LootRarity::Usual, frequency, initialEntropy));
         break;
     case LootRarity::Rare:
-        LootLists.push_back(LootList(lootRareList, LootRarity::Rare, frequency, minRoll, maxRoll, currentRoll));
+        LootLists.push_back(LootList(lootRareList, LootRarity::Rare, frequency, initialEntropy));
         break;
     case LootRarity::ENUM_COUNT:
         break;
@@ -67,113 +70,128 @@ void LootSpawner::AddLootList(LootRarity rarity, int frequency, int minRoll,int 
    
 }
 
+void LootSpawner::ResetAllEntropy()
+{
+    std::uniform_int_distribution<int> dist(0, 99);
+
+    for (LootList& lootRarityCategory : LootLists)
+    {
+        // Обновляем энтропию только для списков, где шанс меньше 100% 
+        // и которые не являются "обычным" лутом.
+        if (lootRarityCategory.GetFrequency() < 100 && lootRarityCategory.GetRarity() != LootRarity::Usual)
+        {
+            int newInitialEntropy = dist(rng);
+            lootRarityCategory.SetCurrentRoll(newInitialEntropy);
+
+            // Опционально: можно вывести в консоль для дебага
+            // std::cout << "Entropy for rarity reset to: " << newInitialEntropy << "\n";
+        }
+    }
+}
+
+
 Loot LootSpawner::GetRandomLoot(vector <Loot>& array)
 {
-    if (array.size() == 0)
+    if (array.empty())
     {
-        cout << "Loot list is empty" << "\n";
-        return *(new Loot());
+        cout << "Loot list is empty\n";
+        return Loot(); 
     }
 
+    if (array.size() == 1)
+    {
+        return array[0];
+    }
+
+    
+    std::uniform_int_distribution<int> dist(0, array.size() - 1);
 
     int lootIndex = 0;
+    int iterations = 0;
 
-    if (array.size() > 1)
+    while (true)
     {
-        int iterations = 0;
-        while (true)
-        {
-            int randValue = std::rand() % array.size();
-            lootIndex = randValue;
+     
+        lootIndex = dist(rng);
 
-            // return random item if there is no prev item
-            if (previousLootValue == -1)
+       
+        if (previousLootValue == -1)
+        {
+            previousLootValue = array[lootIndex].GetValue();
+            return array[lootIndex];
+        }
+
+        // check the item was not returned for prev drop
+        if (array[lootIndex].GetValue() == previousLootValue)
+        {
+            if (array[lootIndex].GetCanRepeat())
             {
                 previousLootValue = array[lootIndex].GetValue();
-
                 return array[lootIndex];
             }
 
-            // check the item was not returned for prev drop
-            if (array[lootIndex].GetValue() == previousLootValue)
+            iterations++;
+            if (iterations > 100)
             {
-                if (array[lootIndex].GetCanRepeat())
-                {
-                    previousLootValue = array[lootIndex].GetValue();
-                    return array[lootIndex];
-                }
-
-                iterations++;
-                if (iterations > 100)
-                {
-                    cout << "iterations limit";
-                    previousLootValue = array[lootIndex].GetValue();
-
-                    return array[lootIndex];
-                }
-            }
-            else
-            {
-
+                cout << "iterations limit\n";
                 previousLootValue = array[lootIndex].GetValue();
                 return array[lootIndex];
             }
         }
+        else
+        {
+            previousLootValue = array[lootIndex].GetValue();
+            return array[lootIndex];
+        }
     }
-
-    return array[0];
 }
 
 Loot LootSpawner::LootSpawn()
 {
-
+    // Важно: подразумевается, что список отсортирован так, 
+    // что редкие предметы (Rare) проверяются первыми.
     for (LootList& lootRarityCategory : LootLists)
     {
-        // check the rarity category can spawn
 
-        if (lootRarityCategory.GetCurrentRoll() >= lootRarityCategory.GetMinRoll())
+        if (lootRarityCategory.GetRarity() == LootRarity::Usual)
         {
-            // check the rarity category should spawn
-            if (lootRarityCategory.GetCurrentRoll() >= lootRarityCategory.GetMaxRoll())
-            {
-                vector<Loot> CurrentList = lootRarityCategory.GetLootList();
+            // Предмет выпал!
+            vector<Loot> CurrentList = lootRarityCategory.GetLootList();
+            Loot value = GetRandomLoot(CurrentList);
 
-                Loot value = GetRandomLoot(CurrentList);
-
-                lootRarityCategory.ClearAddCurrentRoll();
-
-                return value;
-            }
-
-            // spawn item with target chance
-            srand(time(nullptr));
-
-            std::mt19937 rng(std::random_device{}());
-
-            float randValue = std::uniform_real_distribution<double>{ 0.0, 1.0 }(rng);
-
-            if (randValue < lootRarityCategory.GetFrequency() / 100.0)
-            {
-                vector<Loot> CurrentList = lootRarityCategory.GetLootList();
-
-                Loot value = GetRandomLoot(CurrentList);
-
-                lootRarityCategory.ClearAddCurrentRoll();
-
-                return value;
-
-            }
-            else
-            {
-                lootRarityCategory.AddCurrentRoll();
-                continue;
-            }
+            return value;
         }
 
-        lootRarityCategory.AddCurrentRoll();
+        int maxEntropyGain = lootRarityCategory.GetFrequency() * 2;
+        std::uniform_int_distribution<int> fuzzyDist(0, maxEntropyGain);
+
+        // Получаем случайный прирост энтропии
+        int addedEntropy = fuzzyDist(rng);
+
+        // Прибавляем к текущему счетчику
+        int currentEntropy = lootRarityCategory.GetCurrentRoll() + addedEntropy;
+
+        // 2. Проверяем, перевалило ли за 100%
+        if (currentEntropy >= 100)
+        {
+            // Предмет выпал!
+            vector<Loot> CurrentList = lootRarityCategory.GetLootList();
+            Loot value = GetRandomLoot(CurrentList);
+
+            // ВАЖНО: Вычитаем 100, а не сбрасываем в 0. Сохраняем "сдачу".
+            // Для этого вам понадобится метод SetCurrentRoll в классе LootList
+            lootRarityCategory.SetCurrentRoll(currentEntropy - 100);
+
+            return value;
+        }
+        else
+        {
+            // Предмет не выпал, сохраняем накопленную энтропию до следующего броска
+            lootRarityCategory.SetCurrentRoll(currentEntropy);
+        }
     }
 
-    cout << "Loot lists are empty\n";
-    return *new Loot();
+    // Ничего не выпало
+    return Loot(); // Возвращаем пустой объект (без new)
 }
 

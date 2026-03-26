@@ -1,6 +1,6 @@
 #include "LootList.h"
 
-LootList::LootList(vector<Loot> lootList, LootRarity rarity, int frequency, int minRoll, int maxRoll, int currentRoll)
+LootList::LootList(vector<Loot> lootList, LootRarity rarity, int frequency, int currentRoll)
 {
     this->rarity = rarity;
     this->minRoll = minRoll;
@@ -50,6 +50,11 @@ LootRarity LootList::GetRarity()
 vector<Loot> LootList::GetLootList()
 {
     return lootList;
+}
+
+void LootList::SetCurrentRoll(int value)
+{
+    currentRoll = value;
 }
 
 bool CompLootByRarity(LootList first, LootList second) {
